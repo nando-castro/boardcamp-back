@@ -15,7 +15,7 @@ export async function getRentals(req, res) {
 export async function registerRental(req, res) {
   try {
     const { customerId, gameId, daysRented } = req.body;
-    const rentDate = daysjs().format("YYYY-MM-DD");
+    const rentDate = daysjs().format("YYYY-MM-16");
 
     const game = await connection.query(`SELECT * FROM games WHERE id = $1`, [
       gameId,
@@ -52,7 +52,7 @@ export async function registerReturn(req, res) {
 
     const rental = await connection.query(
       `SELECT rentals."rentDate", rentals."daysRented", games."pricePerDay" FROM rentals JOIN games ON games.id = rentals."gameId" WHERE rentals.id = $1`,
-      [id]
+      [req.params.id]
     );
 
     const { rentDate, daysRented, pricePerDay } = rental.rows[0];
@@ -68,7 +68,7 @@ export async function registerReturn(req, res) {
     }
 
     await connection.query(
-      `UPDATE rental SET "returnDate" = NOW(), "delayFee" = $1 WHERE id = $2`,
+      `UPDATE rentals SET "returnDate" = NOW(), "delayFee" = $1 WHERE id = $2`,
       [delayFee, id]
     );
 

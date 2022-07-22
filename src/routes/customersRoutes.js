@@ -1,9 +1,14 @@
-/* import { Router } from "express";
+import { Router } from "express";
+import {
+  getClients,
+  registerClients,
+} from "../controllers/customersControllers.js";
+import { validateClient } from "../middlewares/validateCustomrers.js";
 
 const router = Router();
 
-router.get("");
-router.post("");
-router.update("");
+router.get("/customers", getClients);
+router.post("/customers", validateClient, registerClients);
+//router.update("/customers");
 
-export default router; */
+export default router;

@@ -5,9 +5,7 @@ export default async function validateGame(req, res, next) {
   try {
     const { name, image, stockTotal, categoryId, pricePerDay } = req.body;
 
-    const { error } = gameSchema.validate(
-      req.body
-    );
+    const { error } = gameSchema.validate(req.body);
 
     if (error) {
       return res.status(422).send(error.details);

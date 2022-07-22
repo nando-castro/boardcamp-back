@@ -15,7 +15,7 @@ export async function getRentals(req, res) {
 export async function registerRental(req, res) {
   try {
     const { customerId, gameId, daysRented } = req.body;
-    const rentDate = daysjs().format("YYYY-MM-16");
+    const rentDate = daysjs().format("YYYY-MM-DD");
 
     const game = await connection.query(`SELECT * FROM games WHERE id = $1`, [
       gameId,

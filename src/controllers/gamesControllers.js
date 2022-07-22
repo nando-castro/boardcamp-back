@@ -4,7 +4,6 @@ export async function getGames(req, res) {
   try {
     const { name } = req.query;
     let games;
-
     if (name) {
       games = await connection.query(
         `SELECT * FROM games WHERE name LIKE $1 || '%'`,
@@ -13,7 +12,6 @@ export async function getGames(req, res) {
     } else {
       games = await connection.query(`SELECT * FROM games`);
     }
-
     res.status(200).send(games.rows);
   } catch (error) {
     res.sendStatus(500);

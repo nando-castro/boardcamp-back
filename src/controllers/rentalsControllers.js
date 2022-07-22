@@ -45,3 +45,56 @@ export async function registerRental(req, res) {
     res.sendStatus(500);
   }
 }
+
+export async function registerReturn(req, res) {
+  try {
+    const { id } = req.params;
+
+    const rental = await connection.query(
+      `SELECT rentals."rentDate", rentals."daysRented", games."pricePerDay" FROM rentals JOIN games ON games.id = rentals."gameId" WHERE rentals.id = $1`,
+      [id]
+    );
+
+    const { rentDate, daysRented, pricePerDay } = rental.rows[0];
+    console.log(rental.rows[0]);
+
+    const dateNow = daysjs();
+
+    const rentDuration = dateNow.diff(rentDate, "day");
+    let delayFee = null;
+
+    if (rentDuration > daysRented) {
+      delayFee = (rentDuration - daysRented) * pricePerDay;
+    }
+
+    await connection.query(
+      `UPDATE rental SET "returnDate" = NOW(), "delayFee" = $1 WHERE id = $2`,
+      [delayFee, id]
+    );
+
+    res.sendStatus(200);
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500);
+  }
+}
+
+export async function removeRentals(req, res) {
+  try {
+    const rental = await connection.query(
+      `SELECT * FROM rental WHERE id = $1 AND "returnDate" IS NOT NULL`,
+      [req.params.id]
+    );
+
+    if (rental.rows.length > 0) {
+      return res.sendStatus(400);
+    }
+
+    await connection.query(`DELETE FROM rentals WHERE id = $1`, [
+      req.params.id,
+    ]);
+    res.sendStatus(200);
+  } catch (error) {
+    res.sendStatus(200);
+  }
+}

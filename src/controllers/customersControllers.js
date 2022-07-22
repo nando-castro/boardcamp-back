@@ -40,15 +40,15 @@ export async function updateClient(req, res) {
     const { name, phone, cpf, birthday } = req.body;
     const { id } = req.params;
 
-    const clientExists = await connection.query(
+    /* const clientExists = await connection.query(
       `SELECT * FROM customers WHERE cpf = $1`,
       [cpf]
     );
 
     if (clientExists.rows.length > 0) {
       return res.sendStatus(409);
-    }
-    const client = await connection.query(
+    } */
+    await connection.query(
       `UPDATE customers SET name = $1, phone = $2, cpf = $3, birthday = $4 WHERE id = $5`,
       [name, phone, cpf, birthday, id]
     );

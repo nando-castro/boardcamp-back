@@ -3,7 +3,7 @@ import daysjs from "dayjs";
 
 export async function getRentals(req, res) {
   try {
-    const { id } = req.query;
+    const { customerId } = req.query;    
 
     const rentals = await connection.query(`SELECT * FROM rentals`);
     res.status(200).send(rentals.rows);
@@ -56,7 +56,6 @@ export async function registerReturn(req, res) {
     );
 
     const { rentDate, daysRented, pricePerDay } = rental.rows[0];
-    console.log(rental.rows[0]);
 
     const dateNow = daysjs();
 
@@ -81,8 +80,8 @@ export async function registerReturn(req, res) {
 
 export async function removeRentals(req, res) {
   try {
-    const rental = await connection.query(
-      `SELECT * FROM rental WHERE id = $1 AND "returnDate" IS NOT NULL`,
+    let rental = await connection.query(
+      `SELECT * FROM rentals WHERE id = $1 AND "returnDate" IS NOT NULL`,
       [req.params.id]
     );
 
@@ -95,6 +94,6 @@ export async function removeRentals(req, res) {
     ]);
     res.sendStatus(200);
   } catch (error) {
-    res.sendStatus(200);
+    res.sendStatus(500);
   }
 }

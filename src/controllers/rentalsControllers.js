@@ -3,12 +3,19 @@ import daysjs from "dayjs";
 
 export async function getRentals(req, res) {
   try {
-    const { customerId } = req.query;    
-
-    const rentals = await connection.query(`SELECT * FROM rentals`);
-    res.status(200).send(rentals.rows);
+    const { customerId } = req.query;
+    let rental;
+    if (customerId) {
+      rental = await connection.query(
+        `SELECT * FROM rentals WHERE 'customerId' LIKE $1 || '%'`,
+        [customerId]
+      );
+    } else {
+      rental = await connection.query(`SELECT * FROM rentals`);
+    }
+    res.status(200).send(rental.rows);
   } catch (error) {
-    res.sendStatus(500);
+    res.status(500).send(error);
   }
 }
 
@@ -80,18 +87,17 @@ export async function registerReturn(req, res) {
 
 export async function removeRentals(req, res) {
   try {
-    let rental = await connection.query(
+    const { id } = req.params;
+    const rental = await connection.query(
       `SELECT * FROM rentals WHERE id = $1 AND "returnDate" IS NOT NULL`,
-      [req.params.id]
+      [id]
     );
 
     if (rental.rows.length > 0) {
       return res.sendStatus(400);
     }
 
-    await connection.query(`DELETE FROM rentals WHERE id = $1`, [
-      req.params.id,
-    ]);
+    await connection.query(`DELETE FROM rentals WHERE id = $1`, [id]);
     res.sendStatus(200);
   } catch (error) {
     res.sendStatus(500);

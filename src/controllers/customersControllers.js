@@ -3,6 +3,22 @@ import connection from "../db/database.js";
 export async function getClients(req, res) {
   try {
     const { id } = req.params;
+    const { cpf } = req.query;
+
+    const params = [];
+    let whereClause = "";
+
+    if (cpf) {
+      params.push(`${cpf}%`);
+      whereClause += `WHERE cpf LIKE $${params.length}`;
+      const clients = await connection.query(
+        `SELECT * FROM customers ${whereClause}`,
+        params
+      );
+      return res.status(200).send(clients.rows)
+    }
+    
+
     if (id) {
       const clients = await connection.query(
         `SELECT * FROM customers WHERE id = $1`,
@@ -17,6 +33,7 @@ export async function getClients(req, res) {
     const clients = await connection.query(`SELECT * FROM customers`);
     res.status(200).send(clients.rows);
   } catch (error) {
+    console.log(error)
     res.sendStatus(500);
   }
 }
@@ -40,14 +57,14 @@ export async function updateClient(req, res) {
     const { name, phone, cpf, birthday } = req.body;
     const { id } = req.params;
 
-    /* const clientExists = await connection.query(
-      `SELECT * FROM customers WHERE cpf = $1`,
-      [cpf]
+    const clientExists = await connection.query(
+      `SELECT * FROM customers WHERE cpf = $1 AND id <> $2`,
+      [cpf, id]
     );
 
     if (clientExists.rows.length > 0) {
       return res.sendStatus(409);
-    } */
+    }
     await connection.query(
       `UPDATE customers SET name = $1, phone = $2, cpf = $3, birthday = $4 WHERE id = $5`,
       [name, phone, cpf, birthday, id]
